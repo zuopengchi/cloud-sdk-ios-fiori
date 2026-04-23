@@ -37,4 +37,57 @@ final class AIUserFeedbackTests: XCTestCase {
         valueTextBinding.wrappedValue = "additional feedback"
         XCTAssertEqual(valueText, "additional feedback")
     }
+
+    func testOptionLineLimitDefaultValue() {
+        var selectionValue: [Int] = []
+        let binding = Binding<[Int]>(get: { selectionValue }, set: { selectionValue = $0 })
+        let view = FilterFormView(
+            title: { Text("Title") },
+            options: ["Option 1", "Option 2"],
+            isEnabled: true,
+            value: binding
+        )
+        XCTAssertEqual(view.optionLineLimit, 1)
+    }
+
+    func testOptionLineLimitCustomValue() {
+        var selectionValue: [Int] = []
+        let binding = Binding<[Int]>(get: { selectionValue }, set: { selectionValue = $0 })
+        let view = FilterFormView(
+            title: { Text("Title") },
+            options: ["Option 1", "Option 2"],
+            isEnabled: true,
+            value: binding,
+            optionLineLimit: 3
+        )
+        XCTAssertEqual(view.optionLineLimit, 3)
+    }
+
+    func testConfigurationOptionLineLimit() {
+        var capturedLineLimit: Int?
+        let style = AnyFilterFormViewStyle { cfg in
+            capturedLineLimit = cfg.optionLineLimit
+            return EmptyView()
+        }
+        var selectionValue: [Int] = []
+        let binding = Binding<[Int]>(get: { selectionValue }, set: { selectionValue = $0 })
+        let cfg = FilterFormViewConfiguration(
+            componentIdentifier: FilterFormView.identifier,
+            title: .init(Text("Title")),
+            options: ["Option 1"],
+            controlState: .normal,
+            errorMessage: nil,
+            isEnabled: true,
+            allowsMultipleSelection: true,
+            allowsEmptySelection: false,
+            value: binding,
+            buttonSize: .fixed,
+            isSingleLine: true,
+            optionLineLimit: 5,
+            onValueChange: nil,
+            checkmarkImage: .init(Image(systemName: "checkmark"))
+        )
+        _ = style.makeBody(cfg)
+        XCTAssertEqual(capturedLineLimit, 5)
+    }
 }

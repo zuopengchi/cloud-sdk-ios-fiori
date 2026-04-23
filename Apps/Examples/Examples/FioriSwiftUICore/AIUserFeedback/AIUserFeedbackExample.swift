@@ -63,6 +63,8 @@ struct AIUserFeedbackExample: View {
     @State var voteState: AIUserFeedbackVoteState = .notDetermined
     @State var voteStateIndex: Int = 0
     
+    @State var filterOptionLineLimitIndex: Int = 1
+    
     @State var isBackgroundInteractionEnabled = false
     @State var customizedVoteButton = false
     @State var displayFilterForm = true
@@ -132,6 +134,13 @@ struct AIUserFeedbackExample: View {
             .onChange(of: self.voteStateIndex) {
                 self.voteState = self.voteStates[self.voteStateIndex]
             }
+
+            Picker(selection: self.$filterOptionLineLimitIndex, label: Text("Feedback option Line Limit")) {
+                Text("1").tag(1)
+                Text("2").tag(2)
+                Text("3").tag(3)
+                Text("4").tag(4)
+            }
         }
         .disableMultipleVoteForAIUserFeedback(self.disableMultipleVote)
         .toastMessage(isPresented: self.$isToastPresented, title: "Thank you for your feedback", duration: 3)
@@ -147,7 +156,7 @@ struct AIUserFeedbackExample: View {
     
     func showFeedback(mode: AIUserFeedbackDisplayMode) -> some View {
         let valueOptions: [AttributedString] = ["Inaccuraies", "Inappropriate Content", "Security Risks", "Slow Response", "Repetitive or Wordy", "Others"]
-        let filterFormView = FilterFormView(title: "Select all that apply", isRequired: true, options: valueOptions, errorMessage: displayContentError && self.filterFormViewSelectionValue.isEmpty ? "Missing required field" : nil, isEnabled: true, allowsMultipleSelection: true, allowsEmptySelection: true, value: self.$filterFormViewSelectionValue, buttonSize: .fixed, onValueChange: { value in
+        let filterFormView = FilterFormView(title: "Select all that apply", isRequired: true, options: valueOptions, errorMessage: displayContentError && self.filterFormViewSelectionValue.isEmpty ? "Missing required field" : nil, isEnabled: true, allowsMultipleSelection: true, allowsEmptySelection: true, value: self.$filterFormViewSelectionValue, buttonSize: .fixed, optionLineLimit: self.filterOptionLineLimitIndex, onValueChange: { value in
             print("FilterFormView value change: \(value)")
         })
         let keyValueFormView = KeyValueFormView(title: "Additional feedback", text: self.$valueText, placeholder: "Write additional comments here", errorMessage: self.displayContentError && self.valueText.isEmpty ? "Missing required field" : nil, minTextEditorHeight: 88, maxTextLength: 200, hintText: AttributedString("Hint Text"), isCharCountEnabled: true, allowsBeyondLimit: false, isRequired: true)
